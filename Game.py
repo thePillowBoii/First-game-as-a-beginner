@@ -3,6 +3,9 @@ from pygame.locals import *
 
 pygame.init()
 
+clock = pygame.time.Clock()
+fps = 60
+
 screenWidth = 800
 screenHeight = 800
 
@@ -15,6 +18,87 @@ tileSize = 20
 #load images
 sky = pygame.image.load('2024/cloud.png')
 sky = pygame.transform.scale(sky, (800,800))
+
+class Player():
+    def __init__(self, x,y):
+        self.imagesRight = []
+        self.imagesLeft = []
+        self.imagesIdle = []
+        self.index = 0
+        self.counter = 0
+        for num in range(1, 5):
+            imgR = pygame.image.load(f"2024/runR{num}.png")
+            imgR = pygame.transform.scale(imgR, (20, 40))
+            self.imagesRight.append(imgR)
+            imgL = pygame.image.load(f"2024/run{num}.png")
+            imgL = pygame.transform.scale(imgL, (20, 40))
+            self.imagesLeft.append(imgL)
+            imgIdle = pygame.image.load (f"2024/sprite{num}.png")
+            imgIdle = pygame.transform.scale(imgIdle, (20,40))
+            self.imagesIdle.append(imgIdle)
+        self.image = self.imagesIdle[self.index]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.vel_y = 0
+        self.jumped = False
+        self.direction = 0
+
+    def update(self):
+        dx = 0
+        dy = 0
+        walkCooldown = 10
+
+        #get key presses
+        key = pygame.key.get_pressed()
+        if key[pygame.K_SPACE] and self.jumped == False:
+            self.vel_y = -7
+            self.jumped = True
+        if key[pygame.K_SPACE] == False:
+            self.jumped = False
+        if key[pygame.K_LEFT]:
+            dx -= 2.5
+            self.counter += 1
+            self.direction = -1
+        if key[pygame.K_RIGHT]:
+            dx += 2.5
+            self.counter += 1
+            self.direction = 1
+        if key[pygame.K_LEFT] == False and key[pygame.K_RIGHT] == False:
+            self.counter = 0
+            self.index = 0
+            self.image = self.imagesIdle[self.index]
+
+        #handle animation
+        if self.counter > walkCooldown:
+            self.counter = 0
+            self.index += 1
+            if self.index >= len(self.imagesRight):
+                self.index = 0
+            if self.direction == 1:
+                self.image = self.imagesRight[self.index]
+            if self.direction == -1:
+                self.image = self.imagesLeft[self.index]
+            if self.direction == 0:
+                self.image = self.imagesIdle[self.index]
+
+        #add gravity
+        self.vel_y += 0.5
+        if self.vel_y > 10:
+            self.vel_y = 10
+        dy += self.vel_y
+        #check for collision
+
+        #update player coordinates
+        self.rect.x += dx
+        self.rect.y += dy
+
+        if self.rect.bottom > screenHeight:
+            self.rect.bottom = screenHeight
+            dy = 0
+        #draw player on screen
+        screen.blit(self.image, self.rect)
+
 
 class World():
     def __init__(self, data):
@@ -85,23 +169,26 @@ worldData = [
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 2, 2, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1]
 ]
 
+player = Player(650, screenHeight - 60)
 world = World(worldData)
 
 run = True
 while run:
 
+    clock.tick(fps)
+
     screen.blit(sky, (0, 0))
 
     world.draw()
-    print(world.tileList)
+    player.update()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
