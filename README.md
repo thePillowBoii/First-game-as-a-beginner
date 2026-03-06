@@ -1,1 +1,1 @@
-My first game i've ever made. It's a platformer and I'm following a tutorial. All the art will be done by me.
+My first game i've ever made by myself. It's a platformer and I'm following a tutorial. All the art will be done by me. the 2024 version I made in a class and I want to try make something similar alone
