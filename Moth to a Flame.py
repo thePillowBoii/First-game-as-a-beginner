@@ -24,6 +24,8 @@ class Player():
         self.imagesRight = []
         self.imagesLeft = []
         self.imagesIdle = []
+        self.imagesJumpL = []
+        self.imagesJumpR = []
         self.index = 0
         self.counter = 0
         for num in range(1, 5):
@@ -36,6 +38,12 @@ class Player():
             imgIdle = pygame.image.load (f"2024/sprite{num}.png")
             imgIdle = pygame.transform.scale(imgIdle, (20,40))
             self.imagesIdle.append(imgIdle)
+            imgJumpL = pygame.image.load ("2024/jump1.png")
+            imgJumpL = pygame.transform.scale(imgJumpL, (20,40))
+            self.imagesJumpL.append(imgJumpL)
+            imgJumpR = pygame.image.load ("2024/jumpR1.png")
+            imgJumpR = pygame.transform.scale(imgJumpR, (20,40))
+            self.imagesJumpR.append(imgJumpR)
         self.image = self.imagesIdle[self.index]
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -47,13 +55,14 @@ class Player():
     def update(self):
         dx = 0
         dy = 0
-        walkCooldown = 10
+        walkCooldown = 15
 
         #get key presses
         key = pygame.key.get_pressed()
         if key[pygame.K_SPACE] and self.jumped == False:
             self.vel_y = -7
             self.jumped = True
+            self.counter += 1
         if key[pygame.K_SPACE] == False:
             self.jumped = False
         if key[pygame.K_LEFT]:
@@ -64,10 +73,15 @@ class Player():
             dx += 2.5
             self.counter += 1
             self.direction = 1
-        if key[pygame.K_LEFT] == False and key[pygame.K_RIGHT] == False:
-            self.counter = 0
-            self.index = 0
-            self.image = self.imagesIdle[self.index]
+        if key[pygame.K_LEFT] == False and key[pygame.K_RIGHT] == False and key[pygame.K_SPACE] == False:
+            self.counter += 1
+            self.direction = 0
+            
+        #jump animations
+        if key[pygame.K_SPACE] and key[pygame.K_LEFT]:
+            self.image = self.imagesJumpL[self.index]
+        if key[pygame.K_SPACE] and key[pygame.K_RIGHT]:
+            self.image = self.imagesJumpR[self.index]
 
         #handle animation
         if self.counter > walkCooldown:
