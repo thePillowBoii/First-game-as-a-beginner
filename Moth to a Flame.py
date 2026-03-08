@@ -17,7 +17,7 @@ tileSize = 20
 
 #load images
 sky = pygame.image.load('2024/cloud.png')
-sky = pygame.transform.scale(sky, (800,800))
+sky = pygame.transform.scale(sky, (800, 800))
 
 class Player():
     def __init__(self, x,y):
@@ -36,13 +36,13 @@ class Player():
             imgL = pygame.transform.scale(imgL, (20, 40))
             self.imagesLeft.append(imgL)
             imgIdle = pygame.image.load (f"2024/sprite{num}.png")
-            imgIdle = pygame.transform.scale(imgIdle, (20,40))
+            imgIdle = pygame.transform.scale(imgIdle, (20, 40))
             self.imagesIdle.append(imgIdle)
             imgJumpL = pygame.image.load ("2024/jump1.png")
-            imgJumpL = pygame.transform.scale(imgJumpL, (20,40))
+            imgJumpL = pygame.transform.scale(imgJumpL, (20, 40))
             self.imagesJumpL.append(imgJumpL)
             imgJumpR = pygame.image.load ("2024/jumpR1.png")
-            imgJumpR = pygame.transform.scale(imgJumpR, (20,40))
+            imgJumpR = pygame.transform.scale(imgJumpR, (20, 40))
             self.imagesJumpR.append(imgJumpR)
         self.image = self.imagesIdle[self.index]
         self.rect = self.image.get_rect()
@@ -62,7 +62,7 @@ class Player():
         #get key presses
         key = pygame.key.get_pressed()
         if key[pygame.K_SPACE] and self.jumped == False:
-            self.vel_y = -7
+            self.vel_y = -8.5
             self.jumped = True
             self.counter += 1
         if key[pygame.K_SPACE] == False:
@@ -160,6 +160,9 @@ class World():
                     imgRect.y = rowCount * tileSize
                     tile = (img, imgRect)
                     self.tileList.append(tile)
+                if tile == 3:
+                    blob = Enemy(colCount * tileSize, rowCount * tileSize + 5)
+                    blobGroup.add(blob)
                 colCount += 1
             rowCount += 1
 
@@ -167,6 +170,23 @@ class World():
         for tile in self.tileList:
             screen.blit(tile[0], tile[1])
             
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load('2024/blob.png')
+        self.image = pygame.transform.scale(self.image, (20, 15))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.moveDirection = 1
+        self.moveCounter = 0
+    
+    def update(self):
+        self.rect.x += self.moveDirection
+        self.moveCounter += 1
+        if abs(self.moveCounter) > 40:
+            self.moveDirection *= -1
+            self.moveCounter *= -1
 
 worldData = [
 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -202,16 +222,17 @@ worldData = [
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 2, 2, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[1, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 2, 2, 1, 1, 1, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1, 1, 1, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1]
 ]
 
 player = Player(650, screenHeight - 60)
+blobGroup = pygame.sprite.Group()
 world = World(worldData)
 
 run = True
@@ -222,6 +243,8 @@ while run:
     screen.blit(sky, (0, 0))
 
     world.draw()
+    blobGroup.update()
+    blobGroup.draw(screen)
     player.update()
 
     for event in pygame.event.get():
