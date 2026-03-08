@@ -1,3 +1,5 @@
+#time in tutorial vid: Part 7 10:19
+
 import pygame
 from pygame.locals import *
 
@@ -19,9 +21,33 @@ gameOver = 0
 #load images
 sky = pygame.image.load('2024/cloud.png')
 sky = pygame.transform.scale(sky, (800, 800))
+restartImg = pygame.image.load('2024/restart.png')
+
+class Button():
+    def __init__(self, x, y, image):
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.clicked = False
+
+    def draw(self):
+        #get mouse position
+        pos = pygame.mouse.get_pos()
+
+        #check mouseover and clicked conditions
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+                self.clicked = True
+
+        if pygame.mouse.get_pressed()[0] == 0:
+            self.clicked = False
+
+        #draw button
+        screen.blit(self.image, self.rect)
 
 class Player():
-    def __init__(self, x,y):
+    def __init__(self, x, y):
         self.imagesRight = []
         self.imagesLeft = []
         self.imagesIdle = []
@@ -262,9 +288,14 @@ worldData = [
 ]
 
 player = Player(650, screenHeight - 60)
+
 blobGroup = pygame.sprite.Group()
 lavaGroup = pygame.sprite.Group()
+
 world = World(worldData)
+
+#create buttons
+restartButton = Button(screenWidth // 2 - 60, screenHeight // 2, restartImg)
 
 run = True
 while run:
@@ -282,6 +313,10 @@ while run:
     lavaGroup.draw(screen)
 
     gameOver = player.update(gameOver)
+
+    #if player has died
+    if gameOver == -1:
+        restartButton.draw()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
