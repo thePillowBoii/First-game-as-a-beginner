@@ -17,11 +17,14 @@ pygame.display.set_caption('Game')
 #game variables
 tileSize = 20
 gameOver = 0
+mainMenu = True
 
 #load images
 sky = pygame.image.load('2024/cloud.png')
 sky = pygame.transform.scale(sky, (800, 800))
 restartImg = pygame.image.load('2024/restart.png')
+startImg = pygame.image.load('2024/start.png')
+exitImg = pygame.image.load('2024/exit.png')
 
 class Button():
     def __init__(self, x, y, image):
@@ -295,7 +298,7 @@ worldData = [
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 2, 2, 1, 1, 1, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 2, 2, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1, 1, 1, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -312,6 +315,8 @@ world = World(worldData)
 
 #create buttons
 restartButton = Button(screenWidth // 2 - 60, screenHeight // 2, restartImg)
+startButton = Button(screenWidth // 2 - 275, screenHeight // 2 - 50, startImg)
+exitButton = Button(screenWidth // 2 + 30, screenHeight // 2 - 50, exitImg)
 
 run = True
 while run:
@@ -320,21 +325,27 @@ while run:
 
     screen.blit(sky, (0, 0))
 
-    world.draw()
+    if mainMenu == True:
+        if exitButton.draw():
+            run = False
+        if startButton.draw():
+            mainMenu = False
+    else:
+        world.draw()
 
-    if gameOver == 0:
-        blobGroup.update()
+        if gameOver == 0:
+            blobGroup.update()
 
-    blobGroup.draw(screen)
-    lavaGroup.draw(screen)
+        blobGroup.draw(screen)
+        lavaGroup.draw(screen)
 
-    gameOver = player.update(gameOver)
+        gameOver = player.update(gameOver)
 
-    #if player has died
-    if gameOver == -1:
-        if restartButton.draw():
-            player.reset(650, screenHeight - 60)
-            gameOver = 0
+        #if player has died
+        if gameOver == -1:
+            if restartButton.draw():
+                player.reset(650, screenHeight - 60)
+                gameOver = 0
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
