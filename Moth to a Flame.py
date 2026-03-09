@@ -1,7 +1,10 @@
-#time in tutorial vid: Part
+#time in tutorial vid: Part 9 5:31
+#pickle tutorial - watch to make level editor for world data
 
 import pygame
 from pygame.locals import *
+import pickle
+from os import path
 
 pygame.init()
 
@@ -18,6 +21,7 @@ pygame.display.set_caption('Game')
 tileSize = 20
 gameOver = 0
 mainMenu = True
+level = 1
 
 #load images
 sky = pygame.image.load('2024/cloud.png')
@@ -311,6 +315,10 @@ player = Player(650, screenHeight - 60)
 blobGroup = pygame.sprite.Group()
 lavaGroup = pygame.sprite.Group()
 
+#load in level data and create world
+if path.exists():
+    pickleIn = open(f'level{level}Data', 'rb')
+    worldData = pickle.load(pickleIn)
 world = World(worldData)
 
 #create buttons
